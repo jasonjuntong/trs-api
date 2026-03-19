@@ -1,19 +1,16 @@
-import pg from "./lib/db";
+import express from "express";
+import { createProjectRoute } from "./features/project/projectRoutes.js";
+import { createProjectController } from "./features/project/projectController.js";
 
-const server = Bun.serve({
-    port: 3000,
-    routes: {
-        "/":  new Response("BUN"),
-        "/api/v1/projects": {
-            GET: async ()  => {
-                const projects = await pg`SELECT * FROM projects`;
-                return Response.json(projects);
-            }
-        }
-    },
-    fetch() {
-        return new Response("Not Found", { status: 404 });
-    },
-})
+const projectController = createProjectController();
+const projectRoutes = createProjectRoute(projectController);
 
-console.log(`Listening on ${server.url}`);
+const app = express();
+
+app.use("/api/v1/projects", projectRoutes);
+
+app.get("/", (req, res) => {
+    res.send("Hello backend");
+});
+
+app.listen(3000, () => console.log("Listening to port 3000"));
